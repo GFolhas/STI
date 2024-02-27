@@ -1,0 +1,83 @@
+iptables -nL
+iptables -nL -t nat
+vim etc/services               tem todos os ports
+=========================================================
+======== para projeto, a policy deve ser accept =========
+===============      SSH porta 22     ===================
+=========================================================
+(bloquear pings para o google(8.8.8.8))
+iptables -A OUTPUT -p icmp -j DROP	drop output
+iptables -A INPUT -p icmp -j DROP	drop input
+iptables -F				flush
+iptables -A INPUT -p icmp --icmp-type echo-request -j DROP	"relate" do icmp aceita responses, n aceite requests
+
+
+iptables -A OUTPUT -p tcp --dport 53 -j DROP
+iptables -A INPUT -p tcp -s 192.168.174.2/24 -i [1 da lista de ifconfig eg ens33]--dport 53 -j DROP       -s source,-d destination, -i interface de input/ -o interface de output
+
+
+
+
+
+
+===============================================================
+==================    mudar a policy    =======================
+================  iptables -P INPUT DROP  =====================
+===============================================================
+=== NOTE: NAO DAR FLUSH QUANDO TENHO A POLICY INPUT DE DROP ===
+===============================================================
+
+
+iptables -A INPUT -p icmp -i lo -j ACCEPT    (lo=localhost)
+
+netcat
+udp n fecha qnd o cliente morre
+nc -l       		-      server   listen port udp/tcp(default) [x]
+nc -l -u -p 53
+nc -l -p 53
+
+nc -p 53 [ip do server]
+
+
+
+
+iptables -nL -t nat
+
+hostnamectl set-hostname gisi-gw//client
+router tem 2 placas de rede, cliente só precisa de 1
+
+router -> gateway:
+vi /etc/network/interfaces
+auto ensX
+iface ensX inet static 
+	address 10.20.20.1/24
+
+encaminhamento de pacotes:
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -s 10.20.20.0/24 -o ens33 -p icmp -j SNAT --to-source 192.168.x.x    adresso gateway
+
+systemctl restart networking
+
+ssh sti@192.168.x.x    adresso cliente
+
+iptables -P FORWARD DROP
+iptables -A FORWARD -i ens33 -o ens36 -p icmp -j ACCEPT		assumindo q a placa de rede entre cliente e gateway é ens36
+iptables -A FORWARD -i ens36 -o ens33 -p icmp -j ACCEPT
+
+iptables -A FORWARD -i ens36 -o ens33 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -d 10.20.20.0/24 -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -t nat -A POSTROUTING -s 10.20.20.0/24 -o ens33 -p tcp --dport 22 -j SNAT --to-source 192.168.x.x    adresso gateway
+
+client:
+vi /etc/network/interfaces
+auto ensX
+iface ensX inet static 
+	address 10.20.20.2/24
+	gateway 10.20.20.1
+
+systemctl restart networking
+
+vi /etc/resolv.conf    copiar o do gateway
+
+
+

@@ -1,0 +1,52 @@
+NOTA: Ctrl+D para o terminal terminar o input
+
+# SETUP PERSONAL KEY (in terminal)
+
+gpg --gen-key
+RSA and RSA (default) (Option 1)
+Key does not expire (Option 0)
+Confirm selection (y)
+
+# shows all public keys
+gpg --list-keys
+
+# shows all secret keys
+gpg --list-secret-keys
+
+# store key in pgp.dei.uc.pt
+
+gpg --export -a (paste key)
+(-a means export in ascii format)
+(copy your key and paste in the submit box and submit)
+(key must include both the above key block and below key block)
+
+# add people to list
+(search name on pgp.dei.uc.pt)
+(click person code)
+(copy key)
+gpg --import
+(paste key)
+(check list to make sure person was added)
+
+# sign and trust people
+gpg --edit [person name]
+sign
+(confirm)
+trust
+(select level 5)
+(confirm)
+
+# send message
+(sea means sign and encrypt and generate in ascii)
+gpg -sea
+(insert receiver id)
+(insert message)
+
+# send encrypted message through email
+(copy code and send to user)
+
+# user reads message
+
+gpg -d
+(paste code block)
+(read decrypted message)

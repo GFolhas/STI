@@ -1,0 +1,6 @@
+
+# check validity state in a cert (page 87)
+
+openssl ocsp -CAfile cacert.pem -issuer cacert.pem -cert certs/carreira.crt -url http://ocsp.sti.pt:81 -resp_text
+
+
